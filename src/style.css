@@ -32,20 +32,75 @@ body {
   overflow: hidden;
   font-family: Arial, sans-serif;
 }
+
 #game-container {
   text-align: center;
+  width: 100%;
+  max-width: 800px;
+  padding: 20px;
+  box-sizing: border-box;
 }
+
 #pong {
   background-color: #000;
   border: 2px solid #333;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  aspect-ratio: 8/5;
+  display: block;
+  margin: 0 auto;
 }
+
 h1 {
   color: #fff;
   margin-bottom: 20px;
+  font-size: clamp(24px, 5vw, 36px);
 }
+
 .instructions {
   color: #aaa;
   margin-top: 20px;
-  font-size: 14px;
+  font-size: clamp(12px, 3vw, 14px);
+  line-height: 1.4;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  #game-container {
+    padding: 10px;
+  }
+  
+  #pong {
+    max-width: 100%;
+    aspect-ratio: 4/3;
+  }
+  
+  h1 {
+    margin-bottom: 15px;
+  }
+  
+  .instructions {
+    margin-top: 15px;
+  }
+}
+
+/* 小屏幕设备适配 */
+@media (max-width: 480px) {
+  #game-container {
+    padding: 5px;
+  }
+  
+  #pong {
+    aspect-ratio: 3/2;
+  }
+  
+  h1 {
+    margin-bottom: 10px;
+  }
+  
+  .instructions {
+    margin-top: 10px;
+  }
 }
