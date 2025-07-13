@@ -44,6 +44,9 @@ export default class PongGame {
         this.canvas = document.getElementById("pong") as HTMLCanvasElement;
         this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
         
+        // 设置响应式画布尺寸
+        this.setupResponsiveCanvas();
+        
         // 初始化游戏对象
         this.initializeGameObjects();
         
@@ -56,42 +59,102 @@ export default class PongGame {
     }
 
     /**
+     * 设置响应式画布尺寸
+     */
+    private setupResponsiveCanvas(): void {
+        const resizeCanvas = () => {
+            const container = this.canvas.parentElement;
+            if (!container) return;
+            
+            const containerRect = container.getBoundingClientRect();
+            const maxWidth = Math.min(800, containerRect.width - 40); // 减去padding
+            const maxHeight = Math.min(500, window.innerHeight * 0.6);
+            
+            // 根据屏幕尺寸调整画布尺寸
+            let canvasWidth: number;
+            let canvasHeight: number;
+            
+            if (window.innerWidth <= 480) {
+                // 小屏幕设备
+                canvasWidth = Math.min(maxWidth, 320);
+                canvasHeight = canvasWidth * (2/3); // 3:2 比例
+            } else if (window.innerWidth <= 768) {
+                // 中等屏幕设备
+                canvasWidth = Math.min(maxWidth, 480);
+                canvasHeight = canvasWidth * (3/4); // 4:3 比例
+            } else {
+                // 大屏幕设备
+                canvasWidth = Math.min(maxWidth, 800);
+                canvasHeight = canvasWidth * (5/8); // 8:5 比例
+            }
+            
+            // 设置画布尺寸
+            this.canvas.width = canvasWidth;
+            this.canvas.height = canvasHeight;
+            
+            // 重新初始化游戏对象以适应新尺寸
+            this.initializeGameObjects();
+        };
+        
+        // 初始设置
+        resizeCanvas();
+        
+        // 监听窗口大小变化
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            // 如果游戏正在运行，重新渲染
+            if (this.gameState === 'playing') {
+                this.render();
+            }
+        });
+    }
+
+    /**
      * 初始化游戏对象
      */
     private initializeGameObjects(): void {
         const { width, height } = this.canvas;
 
-        const ballSpeed = 7;
+        // 根据画布尺寸调整游戏元素大小
+        const scaleFactor = Math.min(width / 800, height / 500);
+        const paddleWidth = Math.max(8, Math.floor(this.PADDLE_WIDTH * scaleFactor));
+        const paddleHeight = Math.max(60, Math.floor(this.PADDLE_HEIGHT * scaleFactor));
+        const ballSize = Math.max(12, Math.floor(this.BALL_SIZE * scaleFactor));
+        const paddleOffset = Math.max(15, Math.floor(this.PADDLE_OFFSET * scaleFactor));
+
+        const ballSpeed = 7 * scaleFactor;
         this.ball = new Ball(
-            width / 2 - this.BALL_SIZE / 2,
-            height / 2 - this.BALL_SIZE / 2,
-            this.BALL_SIZE,
+            width / 2 - ballSize / 2,
+            height / 2 - ballSize / 2,
+            ballSize,
             ballSpeed * (Math.random() > 0.5 ? 1 : -1), // dx
             ballSpeed * (Math.random() * 2 - 1),     // dy
             ballSpeed
         );
 
         this.player = new Player(
-            this.PADDLE_OFFSET,
-            height / 2 - this.PADDLE_HEIGHT / 2,
-            this.PADDLE_WIDTH,
-            this.PADDLE_HEIGHT,
-            10 // 玩家球拍速度
+            paddleOffset,
+            height / 2 - paddleHeight / 2,
+            paddleWidth,
+            paddleHeight,
+            10 * scaleFactor // 玩家球拍速度
         );
 
         this.ai = new AI(
-            width - this.PADDLE_OFFSET - this.PADDLE_WIDTH,
-            height / 2 - this.PADDLE_HEIGHT / 2,
-            this.PADDLE_WIDTH,
-            this.PADDLE_HEIGHT,
-            5, // AI基础速度
+            width - paddleOffset - paddleWidth,
+            height / 2 - paddleHeight / 2,
+            paddleWidth,
+            paddleHeight,
+            5 * scaleFactor, // AI基础速度
             'medium' // 难度
         );
 
+        // 根据画布尺寸调整分数显示
+        const fontSize = Math.max(24, Math.floor(48 * scaleFactor));
         this.score = new Score(
             width / 4, // 玩家分数x坐标
-            60,        // 分数y坐标
-            48,        // 字体大小
+            Math.max(30, Math.floor(60 * scaleFactor)),        // 分数y坐标
+            fontSize,        // 字体大小
             '#fff',    // 字体颜色
             'Arial'    // 字体
         );
@@ -290,22 +353,25 @@ export default class PongGame {
 
         // 显示游戏状态信息
         this.ctx.fillStyle = '#fff';
-        this.ctx.font = '24px Arial';
+        const scaleFactor = Math.min(width / 800, height / 500);
+        const mainFontSize = Math.max(16, Math.floor(24 * scaleFactor));
+        const subFontSize = Math.max(12, Math.floor(16 * scaleFactor));
+        this.ctx.font = `${mainFontSize}px Arial`;
         this.ctx.textAlign = 'center';
         
         if (this.gameState === 'menu') {
             this.ctx.fillText('按空格键开始游戏', width / 2, height / 2);
-            this.ctx.font = '16px Arial';
-            this.ctx.fillText('使用 W/S 或 方向键 或 鼠标 移动球拍', width / 2, height / 2 + 40);
+            this.ctx.font = `${subFontSize}px Arial`;
+            this.ctx.fillText('使用 W/S 或 方向键 或 鼠标 移动球拍', width / 2, height / 2 + 40 * scaleFactor);
         } else if (this.gameState === 'paused') {
             this.ctx.fillText('游戏已暂停', width / 2, height / 2);
-            this.ctx.font = '16px Arial';
-            this.ctx.fillText('按空格键继续', width / 2, height / 2 + 40);
+            this.ctx.font = `${subFontSize}px Arial`;
+            this.ctx.fillText('按空格键继续', width / 2, height / 2 + 40 * scaleFactor);
         } else if (this.gameState === 'game_over') {
             const winner = this.score.playerScore > this.score.aiScore ? '玩家' : '电脑';
             this.ctx.fillText(`${winner} 获胜！`, width / 2, height / 2);
-            this.ctx.font = '16px Arial';
-            this.ctx.fillText('按空格键重新开始', width / 2, height / 2 + 40);
+            this.ctx.font = `${subFontSize}px Arial`;
+            this.ctx.fillText('按空格键重新开始', width / 2, height / 2 + 40 * scaleFactor);
         }
     }
 
