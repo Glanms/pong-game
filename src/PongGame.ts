@@ -68,6 +68,7 @@ export default class PongGame {
             
             const containerRect = container.getBoundingClientRect();
             const maxWidth = Math.min(800, containerRect.width - 40); // 减去padding
+  
             
             // 根据屏幕尺寸调整画布尺寸
             let canvasWidth: number;
