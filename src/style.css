@@ -1,0 +1,51 @@
+/* body {
+  background: #181818;
+  color: #eee;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin-top: 30px;
+} */
+
+/* #game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+} */
+
+/* canvas#pong {
+  background: #222;
+  border: 3px solid #eee;
+  box-shadow: 0 4px 40px rgba(0,0,0,0.8);
+  border-radius: 10px;
+  margin-top: 20px;
+} */
+
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #1a1a1a;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+#game-container {
+  text-align: center;
+}
+#pong {
+  background-color: #000;
+  border: 2px solid #333;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+h1 {
+  color: #fff;
+  margin-bottom: 20px;
+}
+.instructions {
+  color: #aaa;
+  margin-top: 20px;
+  font-size: 14px;
+}
